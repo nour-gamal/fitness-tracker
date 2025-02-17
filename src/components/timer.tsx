@@ -1,12 +1,20 @@
 import { useState, useEffect } from "react";
 import { Text, View, TouchableOpacity, StyleSheet } from "react-native";
 
-const Timer = () => {
+const Timer = ({
+	getIsTimerRunning,
+	getIsReset,
+}: {
+	getIsTimerRunning: Function;
+	getIsReset: Function;
+}) => {
 	const [seconds, setSeconds] = useState(0);
 	const [isTimerRunning, setIsTimerRunning] = useState(false);
 
 	useEffect(() => {
 		let interval: NodeJS.Timeout;
+		getIsTimerRunning(isTimerRunning);
+
 		if (isTimerRunning) {
 			interval = setInterval(() => {
 				setSeconds((prev) => prev + 1);
@@ -14,6 +22,7 @@ const Timer = () => {
 		} else {
 			clearInterval(interval);
 		}
+
 		return () => clearInterval(interval);
 	}, [isTimerRunning]);
 
@@ -43,6 +52,7 @@ const Timer = () => {
 					onPress={() => {
 						setIsTimerRunning(false);
 						setSeconds(0);
+						getIsReset();
 					}}>
 					<Text style={styles.buttonText}>Reset</Text>
 				</TouchableOpacity>

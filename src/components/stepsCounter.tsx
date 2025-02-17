@@ -1,38 +1,34 @@
-import { useEffect, useState } from "react";
 import { StyleSheet, Text, View } from "react-native";
-import { Accelerometer } from "expo-sensors";
-import { incrementSteps, setSteps } from "../slice";
-import { useDispatch, useSelector } from "react-redux";
-import { ACTIVITY_THRESHOLD } from "../constants";
-import { selectSteps } from "../selectors";
-import { getData, getTodayDate, saveData } from "../asyncStorage";
 import {
 	detectActivity,
 	distanceToCalories,
 	getDistance,
 	getMinutes,
 } from "../helpers/stepsConversionsHelper";
-const StepsCount = ({ stepsCountKey }: { stepsCountKey: string }) => {
-	const dispatch = useDispatch();
-	const steps = useSelector(selectSteps);
+import { useEffect, useState } from "react";
+import { Accelerometer } from "expo-sensors";
+import { ACTIVITY_THRESHOLD } from "../constants";
+
+const StepsCounter = ({
+	steps,
+	incrementStepsAction,
+}: {
+	steps: number;
+	incrementStepsAction: Function;
+}) => {
+	const distance = getDistance(steps);
+	const minutes = getMinutes(steps);
+	const isRunning = detectActivity(steps, +minutes) === "running";
+	const calories = distanceToCalories(+distance, isRunning);
 	const [previousMagnitude, setPreviousMagnitude] = useState(0);
+
 	useEffect(() => {
-		getData(stepsCountKey).then((data) => {
-			if (data) {
-				const todayStepsData = data[getTodayDate()];
-				if (todayStepsData) {
-					dispatch(setSteps(todayStepsData));
-				}
-			}
-		});
-	}, []);
-	useEffect(() => {
-		let subscription;
+		let subscription: any;
 		const subscribe = async () => {
 			subscription = Accelerometer.addListener(({ x, y, z }) => {
 				const magnitude = Math.sqrt(x * x + y * y + z * z);
 				if (Math.abs(magnitude - previousMagnitude) > ACTIVITY_THRESHOLD) {
-					dispatch(incrementSteps());
+					incrementStepsAction();
 				}
 				setPreviousMagnitude(magnitude);
 			});
@@ -44,14 +40,6 @@ const StepsCount = ({ stepsCountKey }: { stepsCountKey: string }) => {
 		return () => subscription && subscription.remove();
 	}, [previousMagnitude]);
 
-	useEffect(() => {
-		saveData(stepsCountKey, { [getTodayDate()]: steps });
-	}, [steps]);
-
-	const distance = getDistance(steps);
-	const minutes = getMinutes(steps);
-	const isRunning = detectActivity(steps, +minutes) === "running";
-	const calories = distanceToCalories(+distance, isRunning);
 	return (
 		<View>
 			<View style={styles.stepsContainer}>
@@ -75,6 +63,8 @@ const StepsCount = ({ stepsCountKey }: { stepsCountKey: string }) => {
 		</View>
 	);
 };
+export default StepsCounter;
+
 const styles = StyleSheet.create({
 	stepsContainer: {
 		display: "flex",
@@ -102,4 +92,3 @@ const styles = StyleSheet.create({
 		fontSize: 13,
 	},
 });
-export default StepsCount;
