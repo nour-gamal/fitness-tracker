@@ -12,3 +12,9 @@ export type TabIcons = TabIcon[];
 export type activitiesSliceInterface = {
 	steps: number;
 };
+export interface ProfileData {
+	name: string;
+	email: string;
+	phone: string;
+	weight: string;
+}

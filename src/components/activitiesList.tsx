@@ -3,6 +3,7 @@ import { View, FlatList, Text, StyleSheet, Pressable } from "react-native";
 import { getData } from "../asyncStorage";
 import { Ionicons } from "@expo/vector-icons";
 import ActivityItem from "./activityItem";
+import { STEPS_STORAGE_DATA, STEPS_STORAGE_KEY } from "../constants";
 
 const ActivitiesList = ({
 	activityMaxLength,
@@ -11,14 +12,18 @@ const ActivitiesList = ({
 }) => {
 	const [stepsList, setStepsList] = useState([]);
 	const getStepsDate = () => {
-		getData(`stepsData`).then((data) => {
+		getData(STEPS_STORAGE_KEY).then((data) => {
 			if (data) {
 				let stepsList = Object.entries(data).map(([date, steps]) => ({
 					date,
 					steps,
 				}));
 				if (activityMaxLength) {
-					stepsList = stepsList.reverse().slice(0, activityMaxLength);
+					stepsList = stepsList
+						.sort(
+							(a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()
+						)
+						.slice(0, activityMaxLength);
 				}
 				setStepsList(stepsList);
 			}

@@ -8,7 +8,7 @@
 		"userInterfaceStyle": "light",
 		"newArchEnabled": true,
 		"splash": {
-			"image": "./assets/splash-icon.jpg",
+			"image": "./assets/splashIcon.png",
 			"resizeMode": "cover",
 			"backgroundColor": "#ffffff"
 		},
@@ -17,7 +17,7 @@
 				"NSMotionUsageDescription": "We use motion data to count steps."
 			},
 			"splash": {
-				"image": "./assets/splash-icon.jpg",
+				"image": "./assets/splashIcon.png",
 				"resizeMode": "contain",
 				"backgroundColor": "#ffffff"
 			}

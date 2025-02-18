@@ -1,4 +1,9 @@
-import { STEP_LENGTH_KM, STEPS_PER_MINUTE } from "../constants";
+import { getData } from "../asyncStorage";
+import {
+	PROFILE_STORAGE_KEY,
+	STEP_LENGTH_KM,
+	STEPS_PER_MINUTE,
+} from "../constants";
 
 export const getDistance = (steps: number) =>
 	(steps * STEP_LENGTH_KM).toFixed(1);
@@ -8,9 +13,15 @@ export const getMinutes = (steps: number) =>
 
 export const distanceToCalories = (
 	distanceKm: number,
-	isRunning: boolean = false,
-    weightKg: number = 70,
+	isRunning: boolean = false
 ): number => {
+	let weightKg = 70;
+	getData(PROFILE_STORAGE_KEY).then((data) => {
+		if (data?.weight) {
+			weightKg = +data.weight;
+		}
+	});
+
 	const WALKING_CALORIES_PER_KM = 0.75 * weightKg; // ~0.75 calories per kg per km
 	const RUNNING_CALORIES_PER_KM = 1.1 * weightKg; // ~1.1 calories per kg per km
 

@@ -5,3 +5,6 @@ export const TAB_INACTIVE_BG_COLOR = "#F8FAFC"; // Very light gray-blue for a mo
 export const STEP_LENGTH_KM = 0.00078; // Average step length in km (78 cm)
 export const STEPS_PER_MINUTE = 100; // Average steps per minute
 export const ACTIVITY_THRESHOLD = 1.4; // Adjust for sensitivity
+export const PROFILE_STORAGE_KEY = "profileData"; // Key for storing profile data
+export const STEPS_STORAGE_KEY = "stepsCount";
+export const STEPS_STORAGE_DATA = "stepsData";

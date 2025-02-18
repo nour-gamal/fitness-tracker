@@ -4,12 +4,12 @@ import { useDispatch, useSelector } from "react-redux";
 import { selectSteps } from "../selectors";
 import { getData, getTodayDate, saveData } from "../asyncStorage";
 import StepsCounter from "./stepsCounter";
+import { STEPS_STORAGE_KEY } from "../constants";
 const StepsCountPerday = () => {
 	const dispatch = useDispatch();
 	const steps = useSelector(selectSteps);
-	const stepsCountKey: string = "stepsCount";
 	useEffect(() => {
-		getData(stepsCountKey).then((data) => {
+		getData(STEPS_STORAGE_KEY).then((data) => {
 			if (data) {
 				const todayStepsData = data[getTodayDate()];
 				if (todayStepsData) {
@@ -20,7 +20,7 @@ const StepsCountPerday = () => {
 	}, []);
 
 	useEffect(() => {
-		saveData(stepsCountKey, { [getTodayDate()]: steps });
+		saveData(STEPS_STORAGE_KEY, { [getTodayDate()]: steps });
 	}, [steps]);
 
 	return (
