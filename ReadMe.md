@@ -27,7 +27,7 @@ Ensure you have the following installed:
 ### 2. Clone the Repository
 
 ```sh
-git clone https://github.com/yourusername/fitness-tracker.git
+git clone https://github.com/nour-gamal/fitness-tracker.git
 cd fitness-tracker
 ```
 
