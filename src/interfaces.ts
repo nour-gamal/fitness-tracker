@@ -18,3 +18,6 @@ export interface ProfileData {
 	phone: string;
 	weight: string;
 }
+export interface StoreImageParams {
+	uri: string;
+}

@@ -3,7 +3,7 @@ import { View, FlatList, Text, StyleSheet, Pressable } from "react-native";
 import { getData } from "../asyncStorage";
 import { Ionicons } from "@expo/vector-icons";
 import ActivityItem from "./activityItem";
-import { STEPS_STORAGE_DATA, STEPS_STORAGE_KEY } from "../constants";
+import { STEPS_STORAGE_KEY } from "../constants";
 
 const ActivitiesList = ({
 	activityMaxLength,

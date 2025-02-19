@@ -2,19 +2,17 @@ import React, { useEffect, useState } from "react";
 import { View, StyleSheet, Image, TouchableOpacity, Alert } from "react-native";
 import { TextInput, Button, Avatar } from "react-native-paper";
 import { useForm, Controller } from "react-hook-form";
-import { ProfileData } from "../interfaces";
-import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
-import { storage } from "../firebaseConfig"; // Ensure you're importing the correct storage instance
-
+import { ProfileData, StoreImageParams } from "../interfaces";
 import * as ImagePicker from "expo-image-picker";
 import { getData, saveData } from "../asyncStorage";
-import { PROFILE_STORAGE_KEY } from "../constants";
+import { PROFILE_IMAGE_STORAGE_KEY, PROFILE_STORAGE_KEY } from "../constants";
 
 const ProfileForm: React.FC = () => {
 	const {
 		control,
 		handleSubmit,
 		formState: { errors },
+		setValue,
 	} = useForm<ProfileData>();
 
 	const [profileData, updateProfileData] = useState<ProfileData>({
@@ -28,6 +26,14 @@ const ProfileForm: React.FC = () => {
 		getData(PROFILE_STORAGE_KEY).then((data) => {
 			if (data) {
 				updateProfileData(data);
+				Object.keys(data).forEach((key) =>
+					setValue(key as keyof ProfileData, data[key])
+				);
+			}
+		});
+		getData(PROFILE_IMAGE_STORAGE_KEY).then((data) => {
+			if (data) {
+				setProfileImage(data.image);
 			}
 		});
 	}, []);
@@ -50,29 +56,30 @@ const ProfileForm: React.FC = () => {
 		});
 
 		if (!result.canceled) {
-			uploadImage(result.assets[0].uri);
+			storeImage({ uri: result.assets[0].uri });
 		}
 	};
-	const uploadImage = async (uri: string) => {
-		setUploading(true);
+
+	const storeImage = async ({ uri }: StoreImageParams): Promise<void> => {
 		try {
+			setUploading(true);
 			const response = await fetch(uri);
 			const blob = await response.blob();
+			const reader = new FileReader();
 
-			const filename = `profile-images/${Date.now()}.jpg`;
-			const storageRef = ref(storage, filename);
+			reader.onloadend = async () => {
+				const base64Data = reader.result as string;
+				await saveData(PROFILE_IMAGE_STORAGE_KEY, { image: base64Data });
+				Alert.alert("Success", "Profile image uploaded successfully!");
+				setProfileImage(base64Data);
+				setUploading(false);
+			};
 
-			await uploadBytes(storageRef, blob);
-
-			const downloadURL = await getDownloadURL(storageRef);
-			setProfileImage(downloadURL);
-
-			Alert.alert("Success", "Profile image uploaded successfully!");
+			reader.readAsDataURL(blob);
 		} catch (error) {
-			console.error("Upload Error:", error);
-			Alert.alert("Upload Failed", error.message || "Something went wrong!");
+			console.error("Error storing image:", error);
+			Alert.alert("Error", "Failed to upload profile image");
 		}
-		setUploading(false);
 	};
 	const onSubmit = async (data: ProfileData) => {
 		try {

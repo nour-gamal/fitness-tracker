@@ -34,7 +34,6 @@ const styles = StyleSheet.create({
 		backgroundColor: "#0059b3",
 		margin: 5,
 		padding: 10,
-		flex: 1,
 	},
 	activityHeaderItem: {
 		color: "#fff",
@@ -46,12 +45,10 @@ const styles = StyleSheet.create({
 		display: "flex",
 		flexDirection: "row",
 		justifyContent: "space-between",
-		flex: 1,
 		paddingBottom: 20,
 	},
 	activityTypeContainer: {
 		display: "flex",
-		flex: 1,
 		flexDirection: "row",
 		alignItems: "center",
 	},
