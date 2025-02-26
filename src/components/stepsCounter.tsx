@@ -8,6 +8,44 @@ import {
 import { useEffect, useState } from "react";
 import { Accelerometer } from "expo-sensors";
 import { ACTIVITY_THRESHOLD } from "../constants";
+import * as TaskManager from "expo-task-manager";
+import * as BackgroundFetch from "expo-background-fetch";
+import { BackgroundFetchStatus } from "expo-background-fetch";
+import { incrementSteps } from "../slice";
+
+const BACKGROUND_STEP_TASK = "BACKGROUND_STEP_TASK";
+
+TaskManager.defineTask(BACKGROUND_STEP_TASK, async ({ data, error }) => {
+	if (error) {
+		console.error("Error in background task:", error);
+		return;
+	}
+	if (data) {
+		const { acceleration } = data as any;
+		const { x, y, z } = acceleration;
+		const magnitude = Math.sqrt(x * x + y * y + z * z);
+
+		if (magnitude > ACTIVITY_THRESHOLD) {
+			incrementSteps(); // This should be managed via context or global state
+		}
+	}
+});
+
+const registerBackgroundTask = async () => {
+	const status = await BackgroundFetch.getStatusAsync();
+	if (
+		status === BackgroundFetchStatus.Restricted ||
+		status === BackgroundFetchStatus.Denied
+	) {
+		console.log("Background fetch is disabled!");
+		return;
+	}
+	await BackgroundFetch.registerTaskAsync(BACKGROUND_STEP_TASK, {
+		minimumInterval: 1, // Runs every 1 second
+		stopOnTerminate: false,
+		startOnBoot: true,
+	});
+};
 
 const StepsCounter = ({
 	steps,
@@ -24,6 +62,7 @@ const StepsCounter = ({
 
 	useEffect(() => {
 		let subscription: any;
+
 		const subscribe = async () => {
 			subscription = Accelerometer.addListener(({ x, y, z }) => {
 				const magnitude = Math.sqrt(x * x + y * y + z * z);
@@ -33,11 +72,15 @@ const StepsCounter = ({
 				setPreviousMagnitude(magnitude);
 			});
 
-			Accelerometer.setUpdateInterval(100); // Updates every 100ms
+			Accelerometer.setUpdateInterval(100);
 		};
 
 		subscribe();
-		return () => subscription && subscription.remove();
+		registerBackgroundTask(); // Register background task on mount
+
+		return () => {
+			subscription && subscription.remove();
+		};
 	}, [previousMagnitude]);
 
 	return (
